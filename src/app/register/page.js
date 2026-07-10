@@ -34,17 +34,17 @@ export default function register() {
         </div>
         <form className='p-6 space-y-5' onSubmit={handleSubmit}>
                <label className="text-black">กรุณาระบุชื่อ  </label>
-               <input type="text" name="txt_firstname"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='firstname' ></input>
+               <input type="text" name="txt_firstname"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='firstname' required></input>
                <label className="text-black">กรุณาระบุนามสกุล </label>
-               <input type="text" name="txt_lastname"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='lastname' ></input>
+               <input type="text" name="txt_lastname"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='lastname' required></input>
                 <label className="text-black">กรุณาสร้างรหัสผ่าน </label>
-               <input type="password" name="txt_password"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='password' ></input>
+               <input type="password" name="txt_password"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='password' required></input>
                <label className="text-black">ยืนยันรหัสผ่าน </label>
-               <input type="password" name="txt_confirm_password"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='confirm password' ></input>
+               <input type="password" name="txt_confirm_password"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='confirm password' required></input>
                 <label className="text-black">กรุณาระบุอีเมล </label>
-               <input type="text" name="txt_email"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='email' ></input>
+               <input type="text" name="txt_email"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='email' required></input>
                <label className="text-black">กรุณาระบุหมายเลขโทรศัพท์ </label>
-               <input type="text" name="txt_phone"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='phone' ></input>
+               <input type="text" name="txt_phone"defaultValue={""} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='phone' required></input>
                 <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">บันทึกข้อมูล</button>
 
         </form>
