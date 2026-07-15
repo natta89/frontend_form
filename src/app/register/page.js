@@ -1,98 +1,114 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { User, Mail, Lock, ArrowRight } from "lucide-react";
+import React from 'react'
+import { useState } from "react";
+import swal from 'sweetalert2';
 
 export default function FormRegister() {
+
   const [form, setForm] = useState({
-    txt_firstname: "",
-    txt_lastname: "",
-    txt_email: "",
-    txt_password: "",
-    txt_confirm: "",
-  });
-
-  // สำหรับ effect แสงตามเมาส์
-  const cardRef = useRef(null);
-
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    cardRef.current.style.setProperty("--x", `${x}px`);
-    cardRef.current.style.setProperty("--y", `${y}px`);
-  };
+        txt_firstname: "",
+        txt_lastname: "",
+        txt_email: "",
+        txt_password: "",
+        txt_confirm_password: ""
+   });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting:", form);
-  };
+    //console.log(form);
+    try {
+      const response = await fetch('https://api.itdev.cmtc.ac.th/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstname: form.txt_firstname,
+          lastname: form.txt_lastname,
+          username: form.txt_email,
+          password: form.txt_password,
+        }),
+      });
 
-  return (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4">
-      {/* Container ที่มี Effect แสงตามเมาส์ */}
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        className="group relative w-full max-w-lg bg-[#0b0f19] p-10 rounded-[30px] border border-white/10 shadow-2xl overflow-hidden"
-        style={{
-          background: `radial-gradient(circle 300px at var(--x) var(--y), rgba(212, 175, 55, 0.15), transparent 80%), #0b0f19`
-        }}
-      >
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 uppercase tracking-tighter">
-            REGISTER
-          </h1>
-          <p className="text-[#D4AF37] text-[10px] uppercase tracking-[0.4em] mt-2 font-light">
-            สร้างบัญชีผู้ใช้ใหม่
-          </p>
-        </div>
+      const result = await response.json();
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <StyledInput label="First Name" name="txt_firstname" value={form.txt_firstname} onChange={handleChange} placeholder="ชื่อจริง" icon={<User size={14} />} />
-            <StyledInput label="Last Name" name="txt_lastname" value={form.txt_lastname} onChange={handleChange} placeholder="นามสกุล" icon={<User size={14} />} />
-          </div>
-          
-          <StyledInput label="Email Address" name="txt_email" value={form.txt_email} onChange={handleChange} placeholder="example@mail.com" icon={<Mail size={14} />} type="email" />
-          <StyledInput label="Password" name="txt_password" value={form.txt_password} onChange={handleChange} placeholder="••••••••" icon={<Lock size={14} />} type="password" />
-          <StyledInput label="Confirm Password" name="txt_confirm" value={form.txt_confirm} onChange={handleChange} placeholder="••••••••" icon={<Lock size={14} />} type="password" />
+      if (response.ok) {
+        //สำเร็จ (status 201)
+        await swal.fire({
+          icon: 'success',
+          title: `สมัครสมาชิกสำเร็จ(status: ${response.status})`,
+          text: 'เพิ่มข้อมูลผู้ใช้งานเรียบร้อยแล้ว',
+          confirmButtonText: 'ตกลง',
+          confirmButtonColor: '#3085d6',
+        });
+      } else if (response.status === 400) {
+        // Validation error 
+        await swal.fire({
+          icon: 'warning',
+          title: `ข้อมูลไม่ถูกต้อง (status: ${response.status})`,
+          text: result.message || 'เกิดข้อผิดพลาด',
+          confirmButtonText: 'ตกลง',
+          confirmButtonColor: '#FFF700',
+        });
+      }else if (response.status === 500) {
+        // Server error
+        await swal.fire({
+          icon: 'error',
+          title: `เกิดข้อผิดพลาดจากเซิร์ฟเวอร์ (status: ${response.status})`,
+          text: result.message || 'เกิดข้อผิดพลาด',
+          confirmButtonText: 'ตกลง',
+          confirmButtonColor: '#FF0000',
+        });
+      }
 
-          {/* Button */}
-          <button 
-            type="submit" 
-            className="group/btn relative w-full mt-6 py-5 rounded-2xl bg-white text-black font-bold uppercase tracking-widest overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#D4AF37] to-[#fcd34d] translate-x-[-100%] group-hover/btn:translate-x-[0%] transition-transform duration-700" />
-            <span className="relative flex items-center justify-center gap-2">
-              ลงทะเบียน <ArrowRight size={18} />
-            </span>
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+  }catch (error) {
+    //เข้ามาที่นี่เฉพาะตอน"เรียก fetch ไม่สำเร็จเลย"เช่น ไม่มีอินเทอร์เน็ต
+    await swal.fire({
+      icon: "warning",
+      title: `ไม่สามาเชื่อมต่อกับเซิร์ฟเวอร์ได้ (status: ${response.status})`,
+      text: "กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ แล้วลองใหม่อีกครั้ง",
+      confirmButtonText: "ตกลง",
+      confirmButtonColor: "#EB1A60",
+    });
+  }
+   
 }
 
-const StyledInput = ({ label, name, value, onChange, placeholder, icon, type = "text" }) => (
-  <div className="space-y-1">
-    <label className="text-[9px] text-white/30 uppercase tracking-[0.2em] ml-1">{label}</label>
-    <div className="relative">
-      <div className="absolute left-3 top-3.5 opacity-30 text-white">{icon}</div>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:outline-none focus:border-[#D4AF37] transition-all focus:bg-white/10 backdrop-blur-sm"
-        placeholder={placeholder}
-      />
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <div className="bg-white rounded-lg shadow-md border">
+       
+        {/* Header */}
+        <div className="border-b px-6 py-4">
+          <h1 className="text-2xl font-bold text-gray-800">
+            ฟอร์มสมัครสมาชิก
+          </h1>
+        </div>
+
+      <form onSubmit={handleSubmit} className='p-6 space-y-5'>
+
+        <label className="text-black">กรุณาระบุชื่อ </label>
+        <input type="text" name="txt_firstname" defaultValue={form.txt_firstname} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='firstname' />
+        <label className="text-black">กรุณาระบุนาสกุล </label>
+        <input type="text" name="txt_lastname" defaultValue={form.txt_lastname} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='lastname' />
+        <label className="text-black">กรุณาระบุอีเมล </label>
+        <input type="email" name="txt_email" defaultValue={form.txt_email} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='email' />
+        <label className="text-black">กรุณาระบุรหัสผ่าน </label>
+        <input type="password" name="txt_password" defaultValue={form.txt_password} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='password' />
+        <label className="text-black">กรุณายืนยันรหัสผ่าน </label>
+        <input type="password" name="txt_confirm_password" defaultValue={form.txt_confirm_password} onChange={handleChange} className='w-full border text-black border-black rounded-md px-4 py-2' placeholder='confirm password' />
+
+        <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">บันทึกข้อมูล</button>
+      </form>
     </div>
-  </div>
-);
+    </div>
+  )
+}
